@@ -60,9 +60,10 @@ summary(chiro$b)
 unique(chiro$b)
 # only 2 values for "a" and 2 values for "b" where pupae and larvae have the same coefficients and adult is different
 
+
 # filter out three rows for larva, pupa, adult
 chiroL <- chiro %>% 
-  slice(1:5) %>% 
+  slice(1:2) %>% 
   filter(Stage == "L")
 chiroP <- chiro %>% 
   slice(1:5) %>% 
@@ -115,12 +116,12 @@ chiroBiomassSum <- chiroBiomass %>%
 
 #You have to re-run the tidyverse or the %>% won't work 
 
-#MO: this shouldn't be the case- I did not need to on my end. When you load it back up, see what happens and if this is still necessary.
+# **Note MO: this shouldn't be the case- I did not need to on my end. When you load it back up, see what happens and if this is still necessary.
 library(tidyverse)
 
 # re-read the data so all families are included
 
-# MO: you don't need to re-read the data, it is already loaded and saved as "df". You can check this in the environment and we know we haven't altered the raw data load. Part of the idea behind the headings is that everything in the "Intro" section should only need to be done once at the beginning, when you load the script. I would start this code (and subsequent families) as a copy from line 34 (beginning of the chironomidae section, i.e. where you started on line 137)
+# **Note MO: you don't need to re-read the data, it is already loaded and saved as "df". You can check this in the environment and we know we haven't altered the raw data load. Part of the idea behind the headings is that everything in the "Intro" section should only need to be done once at the beginning, when you load the script. I would start this code (and subsequent families) as a copy from line 49 (beginning of the chironomidae section, i.e. where you started on line 149). I have another note on line 138 suggesting another part be added to the intro
 
 read.csv("data/Taxa Traits_Coefficients.csv")
 df <- read.csv("data/Taxa Traits_Coefficients.csv") 
@@ -134,14 +135,14 @@ unique(df$Family)
 # combine all Baetidae families, All Baetidae are in the same family category, I left this in as a placeholder for other families
 #remove all unnecessary columns
 
-# MO: I would rename all of these different numbers, i.e df2, df3, etc. When within a singular script, it is good practice to avoid re-using the same name for dataframes that contain different data. That way if you needed to go back to one of the other family sections, you don't accidentally use the wrong data. This requires changing the subsequent references of this dataframe, but will likely save you a headache down the line when there are 10+ families. I went ahead and did this with baetidae, below, so I could run the code. 
+# **Note MO: I think this df -> df1 is something that could be in the intro code, since you don't need to run it again. I believe chironomids are the only ones in which there were subfamilies...
 
-df2 <- df %>% 
+df1 <- df %>% 
   mutate(Family1 = case_when(Family == "Baetidae" ~ "Baetidae",
                              TRUE ~ Family)) %>% 
   select(Taxon, Stage, Order, higherClass_JS, Family1, a, b, Notes)
 
-unique(df2$Family1)
+unique(df1$Family1)
 
 # create df of just baetidae, !make sure you give it a new name!
 # check biomass of different lengths using length-mass equation: M = a * L^b
@@ -158,18 +159,21 @@ unique(baeti$a)
 summary(baeti$b)
 unique(baeti$b)
 # if only 2 values for "a" and 2 values for "b" where pupae and larvae have the same coefficients and adult is different
-# MO: I don't see a pupa here..
+# **Note MO: I don't see a pupa here...if none, porbably best to use larva than adult for the value
+
+# **Note MO: the number of rows you will slice here will likely be different for each family. For instance, here there are only 2 rows that contain baetidae (family level) L, P, or A coefficients. You want one for each. As noted before, there is no P, so you will need to make a copy of the L and use it for P (**CHECK WITH JASMINE ABOUT THIS CHOICE)
 
 # filter out three rows for larva, pupa, adult, be sure to change the names again
 baetiL <- baeti %>% 
-  slice(1:5) %>% 
+  slice(1:2) %>% 
   filter(Stage == "L")
-baetiP <- baeti %>% 
-  slice(1:5) %>% 
-  filter(Stage == "P")
+baetiP <- baetiL # **Note MO: here is where I am making a copy of L and naming it P
+baetiP[1,2] <-  "P" # **Note MO: this is changing the value of the cell in the first row, second column ("Stage") from larva (L) to pupa (P) since we just copied the larva row to use for pupa
 baetiA <- baeti %>% 
-  slice(1:5) %>% 
+  slice(1:2) %>% 
   filter(Stage == "A")
+
+# **Note MO: this section (lines 178-187) are all already in the intro and don't need to be re-run as long as you haven't closed the script. For conciseness, I would remove this here and just always run the intro when you start. You can always check in the Environment panel what dataframes you have already run.
 
 #### create template of "lifeStage", "sizeClass" and "length" columns; estimate biomass for each size class
 # create vectors for each category
@@ -203,6 +207,7 @@ baetiBiomass <- lslbaeti %>%
                        lifeStage == "2" ~ baetiA$b)) %>% 
   mutate(biomass_mg = a * length_mm ^ b)
 # getting and error on the last line of code above, says object'a' is not found, unable to continue for now 
+# **Note MO: this error was occurring because there was nothing in the baetiP dataframe because there was no value, see note on 164
 
 # summarize biomass 
 baetiBiomassSum <- baetiBiomass %>% 
