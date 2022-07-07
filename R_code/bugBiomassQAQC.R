@@ -1276,6 +1276,945 @@ coleoBiomassSum <- coleoBiomass %>%
 
 
 
+# Curculionlidae----------------------------------------------------------------
+
+#they are spelled different, but when I look them up online it seems to both be weevils, I changed the spelling to the cramer version for consistancy 
+
+df1 <- df %>% 
+  mutate(Family1 = case_when(Family == "Curculionidae" ~ "Curculionlidae",
+                             TRUE ~ Family)) %>% 
+  select(Taxon, Stage, Order, higherClass_JS, Family1, a, b, Notes)
+
+# create df of just hydroptilidae, !make sure you give it a new name!
+# check biomass of different lengths using length-mass equation: M = a * L^b
+curcu <- df1 %>% 
+  filter(Family1 == "Curculionlidae") %>% 
+  mutate(mass_0.5mm = (a*0.5^b),
+         mass_1mm = (a*1^b),
+         mass_1.5mm = (a*1.5^b),
+         mass_2mm = (a*2^b)) 
+
+# check coefficient values, make sure you change the name in the parenthesis 
+summary(curcu$a)
+unique(curcu$a)
+summary(curcu$b)
+unique(curcu$b)
+# if only 2 values for "a" and 2 values for "b" where pupae and larvae have the same coefficients and adult is different
+
+# filter out three rows for larva, pupa, adult, be sure to change the names again
+##only one observation (A) 
+curcuL <- curcu %>% 
+  slice(1) %>% 
+  filter(Stage == "A")
+curcuP <- curcu %>% 
+  slice(1) %>% 
+  filter(Stage == "A")
+curcuA <- curcu %>% 
+  slice(1) %>% 
+  filter(Stage == "A")
+
+
+# rename to be Curculionlidae specific
+lslcurcu <- lsl
+
+# add columns for Curculionlidae
+lslcurcu$Family <- "Curculionlidae"
+lslcurcu$TaxonCode <- "06310"
+
+# make ConcCode, which is TaxonCode-LifeStage-SizeClass
+# add columns with "a" and "b" coefficients assigned to the correct life stage
+# calculate biomass
+
+curcuBiomass <- lslcurcu %>% 
+  mutate(ConcCode = paste(TaxonCode, lifeStage, sizeClass, sep = "-")) %>% 
+  mutate(a = case_when(lifeStage == "0" ~ curcuL$a,
+                       lifeStage == "1" ~ curcuP$a,
+                       lifeStage == "2" ~ curcuA$a)) %>% 
+  mutate(b = case_when(lifeStage == "0" ~ curcuL$b,
+                       lifeStage == "1" ~ curcuP$b,
+                       lifeStage == "2" ~ curcuA$b)) %>% 
+  mutate(biomass_mg = a * length_mm ^ b)
+# getting and error on the last line of code above, says object'a' is not found, unable to continue for now 
+
+# summarize biomass 
+curcuBiomassSum <- curcuBiomass %>% 
+  group_by(ConcCode, Family) %>% 
+  summarize(meanBio_mg = mean(biomass_mg), 
+            minBio_mg = min(biomass_mg),
+            medBio_mg = median(biomass_mg),
+            maxBio_mg = max(biomass_mg))
+
+
+# Diptera--------------------------------------------------------------------
+
+#Again Jasmine's table is more detailed so I added the more specific Diptera to the list as well
+
+df1 <- df %>% 
+  mutate(Family1 = case_when(Family == "x" ~ "Diptera",
+                             Family == "Phoridae" ~ "Diptera",
+                             Family == "Syrphidae" ~ "Diptera",
+                             Family == "Cecidomyiidae" ~ "Diptera",
+                             Family == "Mycetophilidae" ~ "Diptera",
+                             Family == "Scatopsidae" ~ "Diptera",
+                             Family == "Sciaridae" ~ "Diptera",
+                             Family == "Trichoceridae" ~ "Diptera",
+                             Family == "Blephariceridae" ~ "Diptera",
+                             Family == "Ceratopogonidae" ~ "Diptera",
+                             Family == "Culicidae" ~ "Diptera",
+                             Family == "Dixidae" ~ "Diptera",
+                             Family == "Empididae" ~ "Diptera",
+                             Family == "Muscidae" ~ "Diptera",
+                             Family == "Pelecorhynchidae" ~ "Diptera",
+                             Family == "Athericidae" ~ "Diptera",
+                             Family == "Canacidae" ~ "Diptera",
+                             Family == "Chaoboridae" ~ "Diptera",
+                             Family == "Deuterophlebiidae" ~ "Diptera",
+                             Family == "Dolichopodidae" ~ "Diptera",
+                             Family == "Ephydridae" ~ "Diptera",
+                             Family == "Oreoleptidae" ~ "Diptera",
+                             Family == "Psychodidae" ~ "Diptera",
+                             Family == "Ptychopteridae" ~ "Diptera",
+                             Family == "Sciomyzidae" ~ "Diptera",
+                             Family == "Stratiomyidae" ~ "Diptera",
+                             Family == "Tanyderidae" ~ "Diptera",
+                             Family == "Tipulidae" ~ "Diptera",
+                             Family == "Sarcophagidae" ~ "Diptera",
+                             Family == "Simuliidae" ~ "Diptera",
+                             Family == "Tabanidae" ~ "Diptera",
+                             Family == "Thaumaleidae" ~ "Diptera",
+                             TRUE ~ Family)) %>% 
+  select(Taxon, Stage, Order, higherClass_JS, Family1, a, b, Notes)
+
+# create df of just hydroptilidae, !make sure you give it a new name!
+# check biomass of different lengths using length-mass equation: M = a * L^b
+dipte <- df1 %>% 
+  filter(Family1 == "Diptera") %>% 
+  mutate(mass_0.5mm = (a*0.5^b),
+         mass_1mm = (a*1^b),
+         mass_1.5mm = (a*1.5^b),
+         mass_2mm = (a*2^b)) 
+
+# check coefficient values, make sure you change the name in the parenthesis 
+summary(dipte$a)
+unique(dipte$a)
+summary(dipte$b)
+unique(dipte$b)
+# if only 2 values for "a" and 2 values for "b" where pupae and larvae have the same coefficients and adult is different
+
+# filter out three rows for larva, pupa, adult, be sure to change the names again
+dipteL <- dipte %>% 
+  slice(18:20) %>% 
+  filter(Stage == "L")
+dipteP <- dipte %>% 
+  slice(18:20) %>% 
+  filter(Stage == "P")
+dipteA <- dipte %>% 
+  slice(18:20) %>% 
+  filter(Stage == "A")
+
+
+# rename to be Diptera specific
+lsldipte <- lsl
+
+# add columns for Diptera
+lsldipte$Family <- "Diptera"
+lsldipte$TaxonCode <- "01000"
+
+# make ConcCode, which is TaxonCode-LifeStage-SizeClass
+# add columns with "a" and "b" coefficients assigned to the correct life stage
+# calculate biomass
+
+dipteBiomass <- lsldipte %>% 
+  mutate(ConcCode = paste(TaxonCode, lifeStage, sizeClass, sep = "-")) %>% 
+  mutate(a = case_when(lifeStage == "0" ~ dipteL$a,
+                       lifeStage == "1" ~ dipteP$a,
+                       lifeStage == "2" ~ dipteA$a)) %>% 
+  mutate(b = case_when(lifeStage == "0" ~ dipteL$b,
+                       lifeStage == "1" ~ dipteP$b,
+                       lifeStage == "2" ~ dipteA$b)) %>% 
+  mutate(biomass_mg = a * length_mm ^ b)
+# getting and error on the last line of code above, says object'a' is not found, unable to continue for now 
+
+# summarize biomass 
+dipteBiomassSum <- dipteBiomass %>% 
+  group_by(ConcCode, Family) %>% 
+  summarize(meanBio_mg = mean(biomass_mg), 
+            minBio_mg = min(biomass_mg),
+            medBio_mg = median(biomass_mg),
+            maxBio_mg = max(biomass_mg))
+
+
+
+# Empididae---------------------------------------------------------------------
+
+
+
+df1 <- df %>% 
+  mutate(Family1 = case_when(Family == "Empididae" ~ "Empididae",
+                             TRUE ~ Family)) %>% 
+  select(Taxon, Stage, Order, higherClass_JS, Family1, a, b, Notes)
+
+# create df of just hydroptilidae, !make sure you give it a new name!
+# check biomass of different lengths using length-mass equation: M = a * L^b
+empid <- df1 %>% 
+  filter(Family1 == "Empididae") %>% 
+  mutate(mass_0.5mm = (a*0.5^b),
+         mass_1mm = (a*1^b),
+         mass_1.5mm = (a*1.5^b),
+         mass_2mm = (a*2^b)) 
+
+# check coefficient values, make sure you change the name in the parenthesis 
+summary(empid$a)
+unique(empid$a)
+summary(empid$b)
+unique(empid$b)
+# if only 2 values for "a" and 2 values for "b" where pupae and larvae have the same coefficients and adult is different
+
+# filter out three rows for larva, pupa, adult, be sure to change the names again
+empidL <- empid %>% 
+  slice(1:3) %>% 
+  filter(Stage == "L")
+empidP <- empid %>% 
+  slice(1:3) %>% 
+  filter(Stage == "P")
+empidA <- empid %>% 
+  slice(1:3) %>% 
+  filter(Stage == "A")
+
+
+# rename to be Empididae specific
+lslempid <- lsl
+
+# add columns for Empididae
+lslempid$Family <- "Empididae"
+lslempid$TaxonCode <- "01310"
+
+# make ConcCode, which is TaxonCode-LifeStage-SizeClass
+# add columns with "a" and "b" coefficients assigned to the correct life stage
+# calculate biomass
+
+empidBiomass <- lslempid %>% 
+  mutate(ConcCode = paste(TaxonCode, lifeStage, sizeClass, sep = "-")) %>% 
+  mutate(a = case_when(lifeStage == "0" ~ empidL$a,
+                       lifeStage == "1" ~ empidP$a,
+                       lifeStage == "2" ~ empidA$a)) %>% 
+  mutate(b = case_when(lifeStage == "0" ~ empidL$b,
+                       lifeStage == "1" ~ empidP$b,
+                       lifeStage == "2" ~ empidA$b)) %>% 
+  mutate(biomass_mg = a * length_mm ^ b)
+# getting and error on the last line of code above, says object'a' is not found, unable to continue for now 
+
+# summarize biomass 
+empidBiomassSum <- empidBiomass %>% 
+  group_by(ConcCode, Family) %>% 
+  summarize(meanBio_mg = mean(biomass_mg), 
+            minBio_mg = min(biomass_mg),
+            medBio_mg = median(biomass_mg),
+            maxBio_mg = max(biomass_mg))
+
+
+# Apidae -----------------------------------------------------------------------
+
+
+df1 <- df %>% 
+  mutate(Family1 = case_when(Family == "Apidae" ~ "Apidae",
+                             TRUE ~ Family)) %>% 
+  select(Taxon, Stage, Order, higherClass_JS, Family1, a, b, Notes)
+
+# create df of just hydroptilidae, !make sure you give it a new name!
+# check biomass of different lengths using length-mass equation: M = a * L^b
+apida <- df1 %>% 
+  filter(Family1 == "Apidae") %>% 
+  mutate(mass_0.5mm = (a*0.5^b),
+         mass_1mm = (a*1^b),
+         mass_1.5mm = (a*1.5^b),
+         mass_2mm = (a*2^b)) 
+
+# check coefficient values, make sure you change the name in the parenthesis 
+summary(apida$a)
+unique(apida$a)
+summary(apida$b)
+unique(apida$b)
+# if only 2 values for "a" and 2 values for "b" where pupae and larvae have the same coefficients and adult is different
+###only one unique number for a and b
+
+
+# filter out three rows for larva, pupa, adult, be sure to change the names again
+apidaL <- apida %>% 
+  slice(1) %>% 
+  filter(Stage == "A")
+apidaP <- apida %>% 
+  slice(1) %>% 
+  filter(Stage == "A")
+apidaA <- apida %>% 
+  slice(1) %>% 
+  filter(Stage == "A")
+###Only one data point for all of Apidae, which is the A form so all the info is coming from there
+
+# rename to be Apidae specific
+lslapida <- lsl
+
+# add columns for Apidae
+lslapida$Family <- "Apidae"
+lslapida$TaxonCode <- "09400"
+
+# make ConcCode, which is TaxonCode-LifeStage-SizeClass
+# add columns with "a" and "b" coefficients assigned to the correct life stage
+# calculate biomass
+
+apidaBiomass <- lslapida %>% 
+  mutate(ConcCode = paste(TaxonCode, lifeStage, sizeClass, sep = "-")) %>% 
+  mutate(a = case_when(lifeStage == "0" ~ apidaL$a,
+                       lifeStage == "1" ~ apidaP$a,
+                       lifeStage == "2" ~ apidaA$a)) %>% 
+  mutate(b = case_when(lifeStage == "0" ~ apidaL$b,
+                       lifeStage == "1" ~ apidaP$b,
+                       lifeStage == "2" ~ apidaA$b)) %>% 
+  mutate(biomass_mg = a * length_mm ^ b)
+# getting and error on the last line of code above, says object'a' is not found, unable to continue for now 
+
+# summarize biomass 
+apidaBiomassSum <- apidaBiomass %>% 
+  group_by(ConcCode, Family) %>% 
+  summarize(meanBio_mg = mean(biomass_mg), 
+            minBio_mg = min(biomass_mg),
+            medBio_mg = median(biomass_mg),
+            maxBio_mg = max(biomass_mg))
+
+
+
+# Cynipidae --------------------------------------------------------------------
+
+###this is a gall wasp, in Jasmine's table the family name is just "x" so I am going to filter for all "x"s again and find the correct one once we get there :) 
+
+df1 <- df %>% 
+  mutate(Family1 = case_when(Family == "x" ~ "Cynipidae",
+                             TRUE ~ Family)) %>% 
+  select(Taxon, Stage, Order, higherClass_JS, Family1, a, b, Notes)
+
+# create df of just hydroptilidae, !make sure you give it a new name!
+# check biomass of different lengths using length-mass equation: M = a * L^b
+cynip <- df1 %>% 
+  filter(Family1 == "Cynipidae") %>% 
+  mutate(mass_0.5mm = (a*0.5^b),
+         mass_1mm = (a*1^b),
+         mass_1.5mm = (a*1.5^b),
+         mass_2mm = (a*2^b)) 
+
+# check coefficient values, make sure you change the name in the parenthesis 
+summary(cynip$a)
+unique(cynip$a)
+summary(cynip$b)
+unique(cynip$b)
+# if only 2 values for "a" and 2 values for "b" where pupae and larvae have the same coefficients and adult is different
+
+# filter out three rows for larva, pupa, adult, be sure to change the names again
+cynipL <- cynip %>% 
+  slice(42) %>% 
+  filter(Stage == "A")
+cynipP <- cynip %>% 
+  slice(42) %>% 
+  filter(Stage == "A")
+cynipA <- cynip %>% 
+  slice(42) %>% 
+  filter(Stage == "A")
+
+###the row with the only Cynipidae data set is row 42, and the only lifestage is A
+
+
+# rename to be Cynipidae specific
+lslcynip <- lsl
+
+# add columns for Cynipidae
+lslcynip$Family <- "Cynipidae"
+lslcynip$TaxonCode <- "98001"
+
+# make ConcCode, which is TaxonCode-LifeStage-SizeClass
+# add columns with "a" and "b" coefficients assigned to the correct life stage
+# calculate biomass
+
+cynipBiomass <- lslcynip %>% 
+  mutate(ConcCode = paste(TaxonCode, lifeStage, sizeClass, sep = "-")) %>% 
+  mutate(a = case_when(lifeStage == "0" ~ cynipL$a,
+                       lifeStage == "1" ~ cynipP$a,
+                       lifeStage == "2" ~ cynipA$a)) %>% 
+  mutate(b = case_when(lifeStage == "0" ~ cynipL$b,
+                       lifeStage == "1" ~ cynipP$b,
+                       lifeStage == "2" ~ cynipA$b)) %>% 
+  mutate(biomass_mg = a * length_mm ^ b)
+# getting and error on the last line of code above, says object'a' is not found, unable to continue for now 
+
+# summarize biomass 
+cynipBiomassSum <- cynipBiomass %>% 
+  group_by(ConcCode, Family) %>% 
+  summarize(meanBio_mg = mean(biomass_mg), 
+            minBio_mg = min(biomass_mg),
+            medBio_mg = median(biomass_mg),
+            maxBio_mg = max(biomass_mg))
+
+
+
+
+
+#Formicidae --------------------------------------------------------------------
+
+
+
+df1 <- df %>% 
+  mutate(Family1 = case_when(Family == "Formicidae" ~ "Formicidae",
+                             TRUE ~ Family)) %>% 
+  select(Taxon, Stage, Order, higherClass_JS, Family1, a, b, Notes)
+
+# create df of just hydroptilidae, !make sure you give it a new name!
+# check biomass of different lengths using length-mass equation: M = a * L^b
+formi <- df1 %>% 
+  filter(Family1 == "Formicidae") %>% 
+  mutate(mass_0.5mm = (a*0.5^b),
+         mass_1mm = (a*1^b),
+         mass_1.5mm = (a*1.5^b),
+         mass_2mm = (a*2^b)) 
+
+# check coefficient values, make sure you change the name in the parenthesis 
+summary(formi$a)
+unique(formi$a)
+summary(formi$b)
+unique(formi$b)
+# if only 2 values for "a" and 2 values for "b" where pupae and larvae have the same coefficients and adult is different
+
+# filter out three rows for larva, pupa, adult, be sure to change the names again
+formiL <- formi %>% 
+  slice(1) %>% 
+  filter(Stage == "A")
+formiP <- formi %>% 
+  slice(1) %>% 
+  filter(Stage == "A")
+formiA <- formi %>% 
+  slice(1) %>% 
+  filter(Stage == "A")
+
+###again only one data data point for this information and it's lifestage is an A
+
+# rename to be Formicidae specific
+lslformi <- lsl
+
+# add columns for Formicidae
+lslformi$Family <- "Formicidae"
+lslformi$TaxonCode <- "09100"
+
+# make ConcCode, which is TaxonCode-LifeStage-SizeClass
+# add columns with "a" and "b" coefficients assigned to the correct life stage
+# calculate biomass
+
+formiBiomass <- lslformi %>% 
+  mutate(ConcCode = paste(TaxonCode, lifeStage, sizeClass, sep = "-")) %>% 
+  mutate(a = case_when(lifeStage == "0" ~ formiL$a,
+                       lifeStage == "1" ~ formiP$a,
+                       lifeStage == "2" ~ formiA$a)) %>% 
+  mutate(b = case_when(lifeStage == "0" ~ formiL$b,
+                       lifeStage == "1" ~ formiP$b,
+                       lifeStage == "2" ~ formiA$b)) %>% 
+  mutate(biomass_mg = a * length_mm ^ b)
+# getting and error on the last line of code above, says object'a' is not found, unable to continue for now 
+
+# summarize biomass 
+formiBiomassSum <- formiBiomass %>% 
+  group_by(ConcCode, Family) %>% 
+  summarize(meanBio_mg = mean(biomass_mg), 
+            minBio_mg = min(biomass_mg),
+            medBio_mg = median(biomass_mg),
+            maxBio_mg = max(biomass_mg))
+
+
+# Scelionidae-------------------------------------------------------------------
+### this is a subsection of parasitic wasps, their family name is also just put as "x" so I will filter out the "x" and use the exact parasitic wasp data point later on
+
+
+df1 <- df %>% 
+  mutate(Family1 = case_when(Family == "x" ~ "Scelionidae",
+                             TRUE ~ Family)) %>% 
+  select(Taxon, Stage, Order, higherClass_JS, Family1, a, b, Notes)
+
+# create df of just hydroptilidae, !make sure you give it a new name!
+# check biomass of different lengths using length-mass equation: M = a * L^b
+sceli <- df1 %>% 
+  filter(Family1 == "Scelionidae") %>% 
+  mutate(mass_0.5mm = (a*0.5^b),
+         mass_1mm = (a*1^b),
+         mass_1.5mm = (a*1.5^b),
+         mass_2mm = (a*2^b)) 
+
+# check coefficient values, make sure you change the name in the parenthesis 
+summary(sceli$a)
+unique(sceli$a)
+summary(sceli$b)
+unique(sceli$b)
+# if only 2 values for "a" and 2 values for "b" where pupae and larvae have the same coefficients and adult is different
+
+# filter out three rows for larva, pupa, adult, be sure to change the names again
+sceliL <- sceli %>% 
+  slice(40) %>% 
+  filter(Stage == "A")
+sceliP <- sceli %>% 
+  slice(40) %>% 
+  filter(Stage == "A")
+sceliA <- sceli %>% 
+  slice(40) %>% 
+  filter(Stage == "A")
+###only one data point for this information, in row 40, and adult lifestage
+
+# rename to be Scelionidae specific
+lslsceli <- lsl
+
+# add columns for Scelionidae
+lslsceli$Family <- "Scelionidae"
+lslsceli$TaxonCode <- "09500"
+
+# make ConcCode, which is TaxonCode-LifeStage-SizeClass
+# add columns with "a" and "b" coefficients assigned to the correct life stage
+# calculate biomass
+
+sceliBiomass <- lslsceli %>% 
+  mutate(ConcCode = paste(TaxonCode, lifeStage, sizeClass, sep = "-")) %>% 
+  mutate(a = case_when(lifeStage == "0" ~ sceliL$a,
+                       lifeStage == "1" ~ sceliP$a,
+                       lifeStage == "2" ~ sceliA$a)) %>% 
+  mutate(b = case_when(lifeStage == "0" ~ sceliL$b,
+                       lifeStage == "1" ~ sceliP$b,
+                       lifeStage == "2" ~ sceliA$b)) %>% 
+  mutate(biomass_mg = a * length_mm ^ b)
+# getting and error on the last line of code above, says object'a' is not found, unable to continue for now 
+
+# summarize biomass 
+sceliBiomassSum <- sceliBiomass %>% 
+  group_by(ConcCode, Family) %>% 
+  summarize(meanBio_mg = mean(biomass_mg), 
+            minBio_mg = min(biomass_mg),
+            medBio_mg = median(biomass_mg),
+            maxBio_mg = max(biomass_mg))
+
+
+
+# Lepidoptera-------------------------------------------------------------------
+
+### Lepidoptera are moths/butterflies. In Jasmine's table the majority of them are in the "x" 'family' but there are two familes named in this data set, the Pyralidae and the Crambidae
+
+df1 <- df %>% 
+  mutate(Family1 = case_when(Family == "x" ~ "Lepidoptera",
+                             Family == "Pyralidae" ~ "Lepidoptera",
+                             Family == "Crambidae" ~ "Lepidoptera",
+                             TRUE ~ Family)) %>% 
+  select(Taxon, Stage, Order, higherClass_JS, Family1, a, b, Notes)
+
+# create df of just hydroptilidae, !make sure you give it a new name!
+# check biomass of different lengths using length-mass equation: M = a * L^b
+lepid <- df1 %>% 
+  filter(Family1 == "Lepidoptera") %>% 
+  mutate(mass_0.5mm = (a*0.5^b),
+         mass_1mm = (a*1^b),
+         mass_1.5mm = (a*1.5^b),
+         mass_2mm = (a*2^b)) 
+
+# check coefficient values, make sure you change the name in the parenthesis 
+summary(lepid$a)
+unique(lepid$a)
+summary(lepid$b)
+unique(lepid$b)
+# if only 2 values for "a" and 2 values for "b" where pupae and larvae have the same coefficients and adult is different
+
+# filter out three rows for larva, pupa, adult, be sure to change the names again
+lepidL <- lepid %>% 
+  slice(49:51) %>% 
+  filter(Stage == "L")
+lepidP <- lepid %>% 
+  slice(49:51) %>% 
+  filter(Stage == "P")
+lepidA <- lepid %>% 
+  slice(49:51) %>% 
+  filter(Stage == "A")
+
+###the Lepidoptera where the higher class was Lepidoptera in the rows 49-51 so I filtered that area only, they also had all three lifestages!!
+
+
+# rename to be Lepidoptera specific
+lsllepid <- lsl
+
+# add columns for Lepidoptera
+lsllepid$Family <- "Lepidoptera"
+lsllepid$TaxonCode <- "15000"
+
+# make ConcCode, which is TaxonCode-LifeStage-SizeClass
+# add columns with "a" and "b" coefficients assigned to the correct life stage
+# calculate biomass
+
+lepidBiomass <- lsllepid %>% 
+  mutate(ConcCode = paste(TaxonCode, lifeStage, sizeClass, sep = "-")) %>% 
+  mutate(a = case_when(lifeStage == "0" ~ lepidL$a,
+                       lifeStage == "1" ~ lepidP$a,
+                       lifeStage == "2" ~ lepidA$a)) %>% 
+  mutate(b = case_when(lifeStage == "0" ~ lepidL$b,
+                       lifeStage == "1" ~ lepidP$b,
+                       lifeStage == "2" ~ lepidA$b)) %>% 
+  mutate(biomass_mg = a * length_mm ^ b)
+# getting and error on the last line of code above, says object'a' is not found, unable to continue for now 
+
+# summarize biomass 
+lepidBiomassSum <- lepidBiomass %>% 
+  group_by(ConcCode, Family) %>% 
+  summarize(meanBio_mg = mean(biomass_mg), 
+            minBio_mg = min(biomass_mg),
+            medBio_mg = median(biomass_mg),
+            maxBio_mg = max(biomass_mg))
+
+#Pyralidae  --------------------------------------------------------------------
+
+
+df1 <- df %>% 
+  mutate(Family1 = case_when(Family == "Pyralidae" ~ "Pyralidae",
+                             TRUE ~ Family)) %>% 
+  select(Taxon, Stage, Order, higherClass_JS, Family1, a, b, Notes)
+
+# create df of just hydroptilidae, !make sure you give it a new name!
+# check biomass of different lengths using length-mass equation: M = a * L^b
+pyral <- df1 %>% 
+  filter(Family1 == "Pyralidae") %>% 
+  mutate(mass_0.5mm = (a*0.5^b),
+         mass_1mm = (a*1^b),
+         mass_1.5mm = (a*1.5^b),
+         mass_2mm = (a*2^b)) 
+
+# check coefficient values, make sure you change the name in the parenthesis 
+summary(pyral$a)
+unique(pyral$a)
+summary(pyral$b)
+unique(pyral$b)
+###two diff values for a, 2 for b
+
+# filter out three rows for larva, pupa, adult, be sure to change the names again
+pyralL <- pyral %>% 
+  slice(1:3) %>% 
+  filter(Stage == "L")
+pyralP <- pyral %>% 
+  slice(1:3) %>% 
+  filter(Stage == "P")
+pyralA <- pyral %>% 
+  slice(1:3) %>% 
+  filter(Stage == "A")
+
+
+# rename to be Pyralidae specific
+lslpyral <- lsl
+
+# add columns for Pyralidae
+lslpyral$Family <- "Pyralidae"
+lslpyral$TaxonCode <- "15100"
+
+# make ConcCode, which is TaxonCode-LifeStage-SizeClass
+# add columns with "a" and "b" coefficients assigned to the correct life stage
+# calculate biomass
+
+pyralBiomass <- lslpyral %>% 
+  mutate(ConcCode = paste(TaxonCode, lifeStage, sizeClass, sep = "-")) %>% 
+  mutate(a = case_when(lifeStage == "0" ~ pyralL$a,
+                       lifeStage == "1" ~ pyralP$a,
+                       lifeStage == "2" ~ pyralA$a)) %>% 
+  mutate(b = case_when(lifeStage == "0" ~ pyralL$b,
+                       lifeStage == "1" ~ pyralP$b,
+                       lifeStage == "2" ~ pyralA$b)) %>% 
+  mutate(biomass_mg = a * length_mm ^ b)
+# getting and error on the last line of code above, says object'a' is not found, unable to continue for now 
+
+# summarize biomass 
+pyralBiomassSum <- pyralBiomass %>% 
+  group_by(ConcCode, Family) %>% 
+  summarize(meanBio_mg = mean(biomass_mg), 
+            minBio_mg = min(biomass_mg),
+            medBio_mg = median(biomass_mg),
+            maxBio_mg = max(biomass_mg))
+
+
+
+# Orthoptera--------------------------------------------------------------------
+
+###Orthoptera are crickets and such, in Jasmines table some of these are labled under "x" while some are more specific than the cramer table 
+
+df1 <- df %>% 
+  mutate(Family1 = case_when(Family == "x" ~ "Orthoptera",
+                             Family == "Acrididae" ~ "Orthoptera",
+                             Family == "Gryllacrididae" ~ "Orthoptera",
+                             Family == "Tridactylidae" ~ "Orthoptera",
+                             TRUE ~ Family)) %>% 
+  select(Taxon, Stage, Order, higherClass_JS, Family1, a, b, Notes)
+
+# create df of just hydroptilidae, !make sure you give it a new name!
+# check biomass of different lengths using length-mass equation: M = a * L^b
+ortho <- df1 %>% 
+  filter(Family1 == "Orthoptera") %>% 
+  mutate(mass_0.5mm = (a*0.5^b),
+         mass_1mm = (a*1^b),
+         mass_1.5mm = (a*1.5^b),
+         mass_2mm = (a*2^b)) 
+
+# check coefficient values, make sure you change the name in the parenthesis 
+summary(ortho$a)
+unique(ortho$a)
+summary(ortho$b)
+unique(ortho$b)
+# if only 2 values for "a" and 2 values for "b" where pupae and larvae have the same coefficients and adult is different
+
+# filter out three rows for larva, pupa, adult, be sure to change the names again
+orthoL <- ortho %>% 
+  slice(56:57) %>% 
+  filter(Stage == "L")
+orthoP <- ortho %>% 
+  slice(56:57) %>% 
+  filter(Stage == "L")
+orthoA <- ortho %>% 
+  slice(56:57) %>% 
+  filter(Stage == "A")
+
+###no P for this data set, so am using L the P data 
+
+# rename to be Orthoptera specific
+lslortho <- lsl
+
+# add columns for Orthoptera
+lslortho$Family <- "Orthoptera"
+lslortho$TaxonCode <- "10000"
+
+# make ConcCode, which is TaxonCode-LifeStage-SizeClass
+# add columns with "a" and "b" coefficients assigned to the correct life stage
+# calculate biomass
+
+orthoBiomass <- lslortho %>% 
+  mutate(ConcCode = paste(TaxonCode, lifeStage, sizeClass, sep = "-")) %>% 
+  mutate(a = case_when(lifeStage == "0" ~ orthoL$a,
+                       lifeStage == "1" ~ orthoP$a,
+                       lifeStage == "2" ~ orthoA$a)) %>% 
+  mutate(b = case_when(lifeStage == "0" ~ orthoL$b,
+                       lifeStage == "1" ~ orthoP$b,
+                       lifeStage == "2" ~ orthoA$b)) %>% 
+  mutate(biomass_mg = a * length_mm ^ b)
+# getting and error on the last line of code above, says object'a' is not found, unable to continue for now 
+
+# summarize biomass 
+orthoBiomassSum <- orthoBiomass %>% 
+  group_by(ConcCode, Family) %>% 
+  summarize(meanBio_mg = mean(biomass_mg), 
+            minBio_mg = min(biomass_mg),
+            medBio_mg = median(biomass_mg),
+            maxBio_mg = max(biomass_mg))
+
+
+
+# Glossosomatidae---------------------------------------------------------------
+
+
+df1 <- df %>% 
+  mutate(Family1 = case_when(Family == "Glossosomatidae" ~ "Glossosomatidae",
+                             TRUE ~ Family)) %>% 
+  select(Taxon, Stage, Order, higherClass_JS, Family1, a, b, Notes)
+
+# create df of just hydroptilidae, !make sure you give it a new name!
+# check biomass of different lengths using length-mass equation: M = a * L^b
+gloss <- df1 %>% 
+  filter(Family1 == "Glossosomatidae") %>% 
+  mutate(mass_0.5mm = (a*0.5^b),
+         mass_1mm = (a*1^b),
+         mass_1.5mm = (a*1.5^b),
+         mass_2mm = (a*2^b)) 
+
+# check coefficient values, make sure you change the name in the parenthesis 
+summary(gloss$a)
+unique(gloss$a)
+summary(gloss$b)
+unique(gloss$b)
+### two unique numbers from both a and b 
+
+# filter out three rows for larva, pupa, adult, be sure to change the names again
+glossL <- gloss %>% 
+  slice(1:2) %>% 
+  filter(Stage == "L")
+glossP <- gloss %>% 
+  slice(1:2) %>% 
+  filter(Stage == "P")
+glossA <- gloss %>% 
+  slice(5) %>% 
+  filter(Stage == "A")
+
+# rename to be Glossosomatidae specific
+lslgloss <- lsl
+
+# add columns for Glossosomatidae
+lslgloss$Family <- "Glossosomatidae"
+lslgloss$TaxonCode <- "02110"
+
+# make ConcCode, which is TaxonCode-LifeStage-SizeClass
+# add columns with "a" and "b" coefficients assigned to the correct life stage
+# calculate biomass
+
+glossBiomass <- lslgloss %>% 
+  mutate(ConcCode = paste(TaxonCode, lifeStage, sizeClass, sep = "-")) %>% 
+  mutate(a = case_when(lifeStage == "0" ~ glossL$a,
+                       lifeStage == "1" ~ glossP$a,
+                       lifeStage == "2" ~ glossA$a)) %>% 
+  mutate(b = case_when(lifeStage == "0" ~ glossL$b,
+                       lifeStage == "1" ~ glossP$b,
+                       lifeStage == "2" ~ glossA$b)) %>% 
+  mutate(biomass_mg = a * length_mm ^ b)
+# getting and error on the last line of code above, says object'a' is not found, unable to continue for now 
+
+# summarize biomass 
+glossBiomassSum <- glossBiomass %>% 
+  group_by(ConcCode, Family) %>% 
+  summarize(meanBio_mg = mean(biomass_mg), 
+            minBio_mg = min(biomass_mg),
+            medBio_mg = median(biomass_mg),
+            maxBio_mg = max(biomass_mg))
+
+
+# Leptoceridae------------------------------------------------------------------
+
+
+df1 <- df %>% 
+  mutate(Family1 = case_when(Family == "Leptoceridae" ~ "Leptoceridae",
+                             TRUE ~ Family)) %>% 
+  select(Taxon, Stage, Order, higherClass_JS, Family1, a, b, Notes)
+
+# create df of just Leptoceridae, !make sure you give it a new name!
+# check biomass of different lengths using length-mass equation: M = a * L^b
+tocer <- df1 %>% 
+  filter(Family1 == "Leptoceridae") %>% 
+  mutate(mass_0.5mm = (a*0.5^b),
+         mass_1mm = (a*1^b),
+         mass_1.5mm = (a*1.5^b),
+         mass_2mm = (a*2^b)) 
+
+# check coefficient values, make sure you change the name in the parenthesis 
+summary(tocer$a)
+unique(tocer$a)
+summary(tocer$b)
+unique(tocer$b)
+### two unique numbers for a and b 
+
+
+# filter out three rows for larva, pupa, adult, be sure to change the names again
+tocerL <- tocer %>% 
+  slice(1:2) %>% 
+  filter(Stage == "L")
+tocerP <- tocer %>% 
+  slice(1:2) %>% 
+  filter(Stage == "P")
+tocerA <- tocer %>% 
+  slice(14) %>% 
+  filter(Stage == "A")
+
+###the first two rows only consit of A and P, row 14 had an A lifestage, but it is a different taxon than the other two
+
+
+# rename to be Leptoceridae specific
+lsltocer <- lsl
+
+# add columns for Leptoceridae
+lsltocer$Family <- "Leptoceridae"
+lsltocer$TaxonCode <- "02600"
+
+# make ConcCode, which is TaxonCode-LifeStage-SizeClass
+# add columns with "a" and "b" coefficients assigned to the correct life stage
+# calculate biomass
+
+tocerBiomass <- lsltocer %>% 
+  mutate(ConcCode = paste(TaxonCode, lifeStage, sizeClass, sep = "-")) %>% 
+  mutate(a = case_when(lifeStage == "0" ~ tocerL$a,
+                       lifeStage == "1" ~ tocerP$a,
+                       lifeStage == "2" ~ tocerA$a)) %>% 
+  mutate(b = case_when(lifeStage == "0" ~ tocerL$b,
+                       lifeStage == "1" ~ tocerP$b,
+                       lifeStage == "2" ~ tocerA$b)) %>% 
+  mutate(biomass_mg = a * length_mm ^ b)
+
+
+# summarize biomass 
+tocerBiomassSum <- tocerBiomass %>% 
+  group_by(ConcCode, Family) %>% 
+  summarize(meanBio_mg = mean(biomass_mg), 
+            minBio_mg = min(biomass_mg),
+            medBio_mg = median(biomass_mg),
+            maxBio_mg = max(biomass_mg))
+
+#Planariidae--------------------------------------------------------------------
+
+df1 <- df %>% 
+  mutate(Family1 = case_when(Family == "Planariidae" ~ "Planariidae",
+                             TRUE ~ Family)) %>% 
+  select(Taxon, Stage, Order, higherClass_JS, Family1, a, b, Notes)
+
+# create df of just Planariidae, !make sure you give it a new name!
+# check biomass of different lengths using length-mass equation: M = a * L^b
+plana <- df1 %>% 
+  filter(Family1 == "Planariidae") %>% 
+  mutate(mass_0.5mm = (a*0.5^b),
+         mass_1mm = (a*1^b),
+         mass_1.5mm = (a*1.5^b),
+         mass_2mm = (a*2^b)) 
+
+# check coefficient values, make sure you change the name in the parenthesis 
+summary(plana$a)
+unique(plana$a)
+summary(plana$b)
+unique(plana$b)
+### only one unique a and b 
+
+# filter out three rows for larva, pupa, adult, be sure to change the names again
+### only one data point and one lifestage "U"
+planaL <- plana %>% 
+  slice(1) %>% 
+  filter(Stage == "U")
+planaP <- plana %>% 
+  slice(1) %>% 
+  filter(Stage == "U")
+planaA <- plana %>% 
+  slice(1) %>% 
+  filter(Stage == "U")
+
+
+# rename to be Planariidae specific
+lslplana <- lsl
+
+# add columns for Planariidae
+lslplana$Family <- "Planariidae"
+lslplana$TaxonCode <- "22100"
+
+# make ConcCode, which is TaxonCode-LifeStage-SizeClass
+# add columns with "a" and "b" coefficients assigned to the correct life stage
+# calculate biomass
+
+planaBiomass <- lslplana %>% 
+  mutate(ConcCode = paste(TaxonCode, lifeStage, sizeClass, sep = "-")) %>% 
+  mutate(a = case_when(lifeStage == "0" ~ planaL$a,
+                       lifeStage == "1" ~ planaP$a,
+                       lifeStage == "2" ~ planaA$a)) %>% 
+  mutate(b = case_when(lifeStage == "0" ~ planaL$b,
+                       lifeStage == "1" ~ planaP$b,
+                       lifeStage == "2" ~ planaA$b)) %>% 
+  mutate(biomass_mg = a * length_mm ^ b)
+# getting and error on the last line of code above, says object'a' is not found, unable to continue for now 
+
+# summarize biomass 
+planaBiomassSum <- planaBiomass %>% 
+  group_by(ConcCode, Family) %>% 
+  summarize(meanBio_mg = mean(biomass_mg), 
+            minBio_mg = min(biomass_mg),
+            medBio_mg = median(biomass_mg),
+            maxBio_mg = max(biomass_mg))
+
+
+
+
+
+
+
+
+
 
 # --------------------------------------------------------------------
 
@@ -1349,5 +2288,3 @@ hydroBiomassSum <- hydroBiomass %>%
             minBio_mg = min(biomass_mg),
             medBio_mg = median(biomass_mg),
             maxBio_mg = max(biomass_mg))
-
-
