@@ -2210,6 +2210,23 @@ planaBiomassSum <- planaBiomass %>%
 
 
 
+#download information to excel sheets -----------------
+
+install.packages("xlsx")
+
+
+library("xlsx")
+# Write the first data set in a new workbook
+write.xlsx(USArrests, file = "myworkbook.xlsx",
+           sheetName = "USA-ARRESTS", append = FALSE)
+# Add a second data set in a new worksheet
+write.xlsx(mtcars, file = "myworkbook.xlsx", 
+           sheetName="MTCARS", append=TRUE)
+# Add a third data set
+write.xlsx(iris, file = "myworkbook.xlsx",
+           sheetName="IRIS", append=TRUE)
+
+
 
 
 
